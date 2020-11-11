@@ -1,4 +1,4 @@
-var accesstoken = null;
+var accessToken = null;
 
 var signIn = new OktaSignIn({
     baseUrl: 'http://dev-436256.okta.com',
@@ -10,11 +10,12 @@ var signIn = new OktaSignIn({
 });
 
 signIn.renderEl({
-    el: '#login-container'
+    el: '#widget-container'
 }, function success(res) {
     if (res.status === 'SUCCESS') {
         accesstoken = res.tokens.accessToken.accessToken;
-        document.getElementById('token').value += accesstoken;
+        document.getElementById('message').value += accesstoken;
+        signIn.hide();
     } else {
         alert('fail);')
     }
@@ -22,20 +23,29 @@ signIn.renderEl({
     alert('error ' + error);
 });
 
-function message() {
+function onmessage() {
     const url = "/api/messages";
+    var headers = {}
+    if (accessToken != null) {
+        headers = { 'Authorization': 'Bearer ' + accessToken }
+    }
     fetch(url, {
         method : "POST",
         mode: 'cors',
+        headers: headers,
         body: new URLSearchParams(new FormData(document.getElementById("messageForm"))),
     })
     .then((response) => {
+        if (!response.ok) {
+            throw new Error(response.error)
+        }
         return response.text();
     })
     .then(data => {
-        document.getElementById('messages').value = data;
+        var msgs = JSON.parse(data) 
+        document.getElementById('messages').value = msgs.messages.join('\n');
     })
     .catch(function(error) {
-        alert("Error " + error);
+        document.getElementById('messages').value = "Permission denied";
     });
 }
