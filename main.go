@@ -4,7 +4,6 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"net/http"
 	"os"
@@ -29,7 +28,8 @@ func Messages(c *gin.Context) {
 }
 
 func Verify(c *gin.Context) bool {
-	status := true
+	isValid := false
+	errorMessage := ""
 	tokenString := c.Request.Header.Get("Authorization")
 	if strings.HasPrefix(tokenString, "Bearer ") {
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
@@ -37,16 +37,27 @@ func Verify(c *gin.Context) bool {
 			return &rsakey, nil
 		})
 		if err != nil {
-			c.String(http.StatusForbidden, err.Error())
-			status = false
+			errorMessage = err.Error()
+		} else if !token.Valid {
+			errorMessage = "Invalid token"
+		} else if token.Header["alg"] == nil {
+			errorMessage = "alg must be defined"
+		} else if token.Header["kid"] != kid {
+			errorMessage = "Invalid kid"
+		} else if token.Claims.(jwt.MapClaims)["aud"] != "api://default" {
+			errorMessage = "Invalid aud"
+		} else if !strings.Contains(token.Claims.(jwt.MapClaims)["iss"].(string), os.Getenv("OKTA_DOMAIN")) {
+			errorMessage = "Invalid iss"
+		} else {
+			isValid = true
 		}
-		fmt.Println("Header", token.Header)
-		fmt.Println("Claims", token.Claims)
+		if !isValid {
+			c.String(http.StatusForbidden, errorMessage)
+		}
 	} else {
 		c.String(http.StatusUnauthorized, "Unauthorized")
-		status = false
 	}
-	return status
+	return isValid
 }
 
 func Keys() {
