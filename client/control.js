@@ -2,7 +2,8 @@ var accessToken = null;
 
 var signIn = new OktaSignIn({
     baseUrl: 'http://dev-436256.okta.com',
-    clientId: '0oaavsqp2YFRRTL5x5d5',
+    clientId: '0oahdxs1Lvfiq43CI5d5',
+    redirectUri: window.location.origin,
     authParams: {
         issuer: 'https://dev-436256.okta.com/oauth2/default',
         responseType: ['token', 'id_token']
@@ -13,8 +14,8 @@ signIn.renderEl({
     el: '#widget-container'
 }, function success(res) {
     if (res.status === 'SUCCESS') {
-        accesstoken = res.tokens.accessToken.accessToken;
-        document.getElementById('message').value += accesstoken;
+        accessToken = res.tokens.accessToken.accessToken;
+        document.getElementById('messages').value += accessToken;
         signIn.hide();
     } else {
         alert('fail);')
