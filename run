@@ -1,4 +1,10 @@
 #! /bin/bash
 
+for file in templates/*
+do
+    destfile=client${file#templates}
+    sed -e "s/\${yourOktaDomain}/$OKTA_DOMAIN/g" -e "s/\${yourClientId}/$OKTA_CLIENT_ID/g" $file > $destfile
+done
+
 go run main.go
 
