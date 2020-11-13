@@ -15,7 +15,6 @@ signIn.renderEl({
 }, function success(res) {
     if (res.status === 'SUCCESS') {
         accessToken = res.tokens.accessToken.accessToken;
-        document.getElementById('messages').value += accessToken;
         signIn.hide();
     } else {
         alert('fail);')
