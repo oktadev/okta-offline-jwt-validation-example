@@ -15,9 +15,7 @@ import (
 )
 
 var messages []string
-var kid string
-var key string
-var rsakey rsa.PublicKey
+var rsakeys map[string]*rsa.PublicKey
 
 func Messages(c *gin.Context) {
 	if Verify(c) {
@@ -34,7 +32,7 @@ func Verify(c *gin.Context) bool {
 	if strings.HasPrefix(tokenString, "Bearer ") {
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return &rsakey, nil
+			return rsakeys[token.Header["kid"].(string)], nil
 		})
 		if err != nil {
 			errorMessage = err.Error()
@@ -42,8 +40,6 @@ func Verify(c *gin.Context) bool {
 			errorMessage = "Invalid token"
 		} else if token.Header["alg"] == nil {
 			errorMessage = "alg must be defined"
-		} else if token.Header["kid"] != kid {
-			errorMessage = "Invalid kid"
 		} else if token.Claims.(jwt.MapClaims)["aud"] != "api://default" {
 			errorMessage = "Invalid aud"
 		} else if !strings.Contains(token.Claims.(jwt.MapClaims)["iss"].(string), os.Getenv("OKTA_DOMAIN")) {
@@ -60,20 +56,25 @@ func Verify(c *gin.Context) bool {
 	return isValid
 }
 
-func Keys() {
+func GetPublicKeys() {
+	rsakeys = make(map[string]*rsa.PublicKey)
 	var body map[string]interface{}
 	uri := "https://" + os.Getenv("OKTA_DOMAIN") + "/oauth2/default/v1/keys"
 	resp, _ := http.Get(uri)
 	json.NewDecoder(resp.Body).Decode(&body)
-	bodykey := body["keys"].([]interface{})[0].(map[string]interface{})
-	kid = bodykey["kid"].(string)
-	number, _ := base64.RawURLEncoding.DecodeString(bodykey["n"].(string))
-	rsakey.N = new(big.Int).SetBytes(number)
-	rsakey.E = 65537
+	for _, bodykey := range body["keys"].([]interface{}) {
+		key := bodykey.(map[string]interface{})
+		kid := key["kid"].(string)
+		rsakey := new(rsa.PublicKey)
+		number, _ := base64.RawURLEncoding.DecodeString(key["n"].(string))
+		rsakey.N = new(big.Int).SetBytes(number)
+		rsakey.E = 65537
+		rsakeys[kid] = rsakey
+	}
 }
 
 func main() {
-	Keys()
+	GetPublicKeys()
 	r := gin.Default()
 	r.Use(static.Serve("/", static.LocalFile("./client", false)))
 	r.POST("/api/messages", Messages)

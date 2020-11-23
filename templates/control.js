@@ -39,13 +39,12 @@ function onmessage() {
         if (!response.ok) {
             throw new Error(response.error)
         }
-        return response.text();
+        return response.json();
     })
     .then(data => {
-        var msgs = JSON.parse(data) 
-        document.getElementById('messages').value = msgs.messages.join('\n');
+        document.getElementById('messages').value = data.messages;
     })
     .catch(function(error) {
-        document.getElementById('messages').value = "Permission denied";
+        document.getElementById('messages').value = error;
     });
 }
