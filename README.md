@@ -5,7 +5,7 @@ Please read https://developer.okta.com/blog/2021/01/04/offline-jwt-validation-wi
 
 **Prerequisites:** 
 
-- **Go**: [OpenJDK website](https://golang.org/doc/install). 
+- **Go**: https://golang.org/doc/install 
 
 > [Okta](https://developer.okta.com/) has Authentication and User Management APIs that reduce development time with instant-on, scalable user infrastructure. Okta's intuitive API and expert support make it easy for developers to authenticate, manage, and secure users and roles in any application.
 
