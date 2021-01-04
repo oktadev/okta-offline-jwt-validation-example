@@ -1,4 +1,4 @@
-module jwt-go
+module offline-jwt-validation-with-go
 
 go 1.15
 

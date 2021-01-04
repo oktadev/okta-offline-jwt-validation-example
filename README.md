@@ -25,6 +25,26 @@ go get github.com/gin-gonic/gin
 go get github.com/dgrijalva/jwt-go
 ```
 
+### Create an Application in Okta
+
+Log in to your Okta Developer account (or [sign up](https://developer.okta.com/signup/) if you don’t have an account).
+
+1. From the **Applications** page, choose **Add Application**.
+2. On the Create New Application page, select **Single-Page App**.
+3. Give your app a memorable name, add `http://localhost:8080` as a Login redirect URI, then click **Done**.
+
+There are two pieces of information that you need to obtain from the Okta Developer Console. 
+These are your Okta domain name (e.g. `dev-12345.okta.com`) and your client id (e.g. `0ab1c2defg3AB4Chi567`).
+
+Edit the file `client/control.js` and replace `${yourOktaDomain}` and `${yourClientId}` with the values you created above.
+
+Return to your terminal and set the `$OKTA_DOMAIN` environment variable to your Okta domain name.
+Replace `okta12345.okta.com` with your Okta domain name. 
+
+``` bash
+export OKTA_DOMAIN="dev-12345.okta.com"
+```
+
 Then use this command to run the example:
 
 ``` bash
