@@ -1,7 +1,7 @@
 # Offline JWT validation in Go
 
 This repository shows how to locally validate a JWT with Go. 
-Please read https://developer.okta.com/blog/2021/01/04/offline-jwt-validation-with-go to see how this example was created.
+Please read [the blog post for this repo](https://developer.okta.com/blog/2021/01/04/offline-jwt-validation-with-go) to see how this example was created.
 
 **Prerequisites:** 
 
